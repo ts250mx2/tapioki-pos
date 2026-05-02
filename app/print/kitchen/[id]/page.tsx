@@ -9,8 +9,8 @@ export default function KitchenPrint() {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (params?.id) fetchData();
+  }, [params?.id]);
   const fetchData = async () => {
     try {
       const res = await fetch(`/api/sales/${params.id}`);

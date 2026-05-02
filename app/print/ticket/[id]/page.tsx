@@ -10,8 +10,8 @@ export default function TicketPrint() {
   const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (params?.id) fetchData();
+  }, [params?.id]);
 
   const fetchData = async () => {
     try {

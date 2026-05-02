@@ -235,11 +235,14 @@ export default function POSPage() {
     setProcessing(true);
     setCashError('');
 
+    const shouldPrintKitchen = printKitchen;
+
     // Pre-open windows to avoid popup blockers after async fetch
-    const ticketWin = window.open('about:blank', '_blank', 'width=420,height=650');
+    // Use names to help some browsers distinguish them
+    const ticketWin = window.open('about:blank', 'TicketPrint', 'width=420,height=650');
     let kitchenWin: Window | null = null;
-    if (printKitchen) {
-      kitchenWin = window.open('about:blank', '_blank', 'width=420,height=650');
+    if (shouldPrintKitchen) {
+      kitchenWin = window.open('about:blank', 'KitchenPrint', 'width=420,height=650');
     }
 
     try {
@@ -267,7 +270,7 @@ export default function POSPage() {
         if (ticketWin) {
           ticketWin.location.href = `/print/ticket/${data.idVenta}`;
         }
-        if (printKitchen && kitchenWin) {
+        if (shouldPrintKitchen && kitchenWin) {
           kitchenWin.location.href = `/print/kitchen/${data.idVenta}`;
         }
       } else {
