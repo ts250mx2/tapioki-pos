@@ -78,7 +78,7 @@ export default function MovimientoPrint() {
       <div className={styles.footer} style={{ fontSize: '16px', fontWeight: 'bold', textAlign: 'center', marginTop: '10px' }}>
         <div className={styles.row}>
           <span>MONTO:</span>
-          <span style={{ fontSize: '20px' }}>${Math.abs(data.Efectivo).toFixed(2)}</span>
+          <span style={{ fontSize: '20px' }}>${Math.abs(Number(data.Efectivo || 0)).toFixed(2)}</span>
         </div>
       </div>
 

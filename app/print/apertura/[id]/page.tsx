@@ -65,7 +65,7 @@ export default function AperturaPrint() {
       <div className={styles.footer} style={{ fontSize: '14px', fontWeight: 'bold', textAlign: 'center', marginTop: '15px' }}>
         <div className={styles.row}>
           <span>FONDO INICIAL:</span>
-          <span style={{ fontSize: '18px' }}>${data.FondoCaja.toFixed(2)}</span>
+          <span style={{ fontSize: '18px' }}>${Number(data.FondoCaja || 0).toFixed(2)}</span>
         </div>
       </div>
 
