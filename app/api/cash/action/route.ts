@@ -4,7 +4,8 @@ import { cookies } from 'next/headers';
 
 export async function POST(request: Request) {
   try {
-    const { action, amount, supervisorId } = await request.json();
+    const body = await request.json();
+    const { action, amount, supervisorId, id, totals } = body;
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('auth_session');
     const user = sessionCookie ? JSON.parse(sessionCookie.value) : null;
@@ -28,7 +29,6 @@ export async function POST(request: Request) {
     }
 
     if (action === 'close') {
-      const { id, totals } = await request.json();
       
       await pool.query(`
         UPDATE tblAperturasCierres 
