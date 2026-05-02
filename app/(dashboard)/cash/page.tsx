@@ -193,7 +193,7 @@ export default function CashPage() {
                     <tbody>
                       {movements.map((m, idx) => (
                         <tr key={idx}>
-                          <td>{new Date(m.Fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                          <td>{new Date(m.FechaRetiro).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                           <td>{m.Concepto}</td>
                           <td className={m.Efectivo >= 0 ? styles.positive : styles.negative}>
                             ${Math.abs(m.Efectivo).toFixed(2)}

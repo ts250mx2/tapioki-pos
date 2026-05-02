@@ -56,7 +56,7 @@ export default function MovimientoPrint() {
         </div>
         <div className={styles.row}>
           <span>FECHA:</span>
-          <span>{new Date(data.Fecha).toLocaleString()}</span>
+          <span>{new Date(data.FechaRetiro).toLocaleString()}</span>
         </div>
         <div className={styles.row}>
           <span>CAJA ID:</span>
