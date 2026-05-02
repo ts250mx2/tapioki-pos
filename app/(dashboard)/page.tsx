@@ -251,7 +251,7 @@ export default function POSPage() {
         if (printKitchen) {
           window.open(`/print/kitchen/${data.idVenta}`, '_blank', 'width=420,height=650');
         }
-        alert(`✅ Venta registrada — Folio: ${data.folio}  |  Cambio: $${cambio.toFixed(2)}`);
+        // alert removed to prevent UI blocking
       } else {
         setCashError(data.message || 'Error al procesar la venta');
       }
