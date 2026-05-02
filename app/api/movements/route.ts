@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
     await pool.query(`
       INSERT INTO tblRetiros 
-      (IdRetiro, IdComputadora, IdApertura, Efectivo, Concepto, Fecha, IdSupervisor) 
+      (IdRetiro, IdComputadora, IdApertura, Efectivo, Concepto, FechaRetiro, IdSupervisor) 
       VALUES (?, 1, ?, ?, ?, NOW(), ?)
     `, [nextId, idApertura, type === 'salida' ? -amount : amount, concept, user.IdUsuario]);
 
