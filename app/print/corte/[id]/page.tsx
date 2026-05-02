@@ -72,6 +72,26 @@ export default function CortePrint() {
       </div>
 
       <div className={styles.divider}></div>
+      <div className={styles.sectionTitle}>ENTRADAS Y SALIDAS</div>
+      <div className={styles.items}>
+        {data.movements && data.movements.length > 0 ? (
+          data.movements.map((m: any, i: number) => (
+            <div key={i} className={styles.item} style={{ marginBottom: '8px' }}>
+              <div className={styles.row}>
+                <span style={{ fontWeight: 'bold' }}>#{m.IdRetiro} - {m.Efectivo > 0 ? 'ENTRADA' : 'SALIDA'}</span>
+                <span>${Math.abs(m.Efectivo).toFixed(2)}</span>
+              </div>
+              <div style={{ fontSize: '9px', fontStyle: 'italic' }}>
+                {m.Concepto} | {new Date(m.FechaRetiro).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div style={{ textAlign: 'center', fontSize: '11px' }}>Sin movimientos de efectivo</div>
+        )}
+      </div>
+
+      <div className={styles.divider}></div>
       <div className={styles.sectionTitle}>TICKETS CANCELADOS</div>
       <div className={styles.items}>
         {data.cancelledTickets && data.cancelledTickets.length > 0 ? (

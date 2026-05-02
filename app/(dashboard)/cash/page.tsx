@@ -11,9 +11,11 @@ export default function CashPage() {
   const [movements, setMovements] = useState<any[]>([]);
   const [movementModal, setMovementModal] = useState<{ type: 'entrada' | 'salida' } | null>(null);
   const [movData, setMovData] = useState({ amount: '', concept: '' });
+  const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
     fetchStatus();
+    fetchHistory();
   }, []);
 
   const fetchStatus = async () => {
@@ -31,6 +33,12 @@ export default function CashPage() {
     const res = await fetch(`/api/movements?idApertura=${idApertura}`);
     const data = await res.json();
     setMovements(data);
+  };
+
+  const fetchHistory = async () => {
+    const res = await fetch('/api/cash/list');
+    const data = await res.json();
+    setHistory(data);
   };
 
   const handleOpen = async () => {
@@ -103,6 +111,7 @@ export default function CashPage() {
       });
       window.open(`/print/corte/${status.session.IdApertura}`, '_blank');
       fetchStatus();
+      fetchHistory();
     }
   };
 
@@ -308,6 +317,48 @@ export default function CashPage() {
           </div>
         </div>
       )}
+      {/* Historial de Cortes */}
+      <div className={`${styles.section} glass`} style={{ marginTop: '2rem' }}>
+        <div className={styles.sectionHeader}>
+          <h3>Historial de Cortes Recientes</h3>
+        </div>
+        <div className={styles.movTable}>
+          {history.length === 0 ? (
+            <p className={styles.emptyMsg}>No hay historial disponible</p>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Apertura</th>
+                  <th>Cierre</th>
+                  <th>Ventas</th>
+                  <th style={{ textAlign: 'right' }}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((h, idx) => (
+                  <tr key={idx}>
+                    <td>#{h.IdApertura}</td>
+                    <td>{new Date(h.FechaApertura).toLocaleString()}</td>
+                    <td>{h.FechaCierre ? new Date(h.FechaCierre).toLocaleString() : <span className={styles.positive}>ACTIVA</span>}</td>
+                    <td>${Number(h.TotalVentas || 0).toFixed(2)}</td>
+                    <td style={{ textAlign: 'right' }}>
+                      <button 
+                        className={styles.printBtn} 
+                        style={{ padding: '4px 8px', fontSize: '12px' }}
+                        onClick={() => window.open(`/print/corte/${h.IdApertura}`, '_blank')}
+                      >
+                        <Printer size={14} /> Reimprimir Corte
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

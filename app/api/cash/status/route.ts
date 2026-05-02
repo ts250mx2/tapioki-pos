@@ -62,11 +62,20 @@ export async function GET(request: Request) {
       ORDER BY IdVenta DESC
     `, [sessionData.IdApertura]);
 
+    // 5. Get cash movements (entries and exits)
+    const [movementsRows] = await pool.query(`
+      SELECT IdRetiro, Concepto, Efectivo, FechaRetiro
+      FROM tblRetiros
+      WHERE IdApertura = ?
+      ORDER BY IdRetiro ASC
+    `, [sessionData.IdApertura]);
+
     const session = {
       ...sessionData,
       ...totals,
       products: productsRows,
-      cancelledTickets: cancelledRows
+      cancelledTickets: cancelledRows,
+      movements: movementsRows
     };
 
     return NextResponse.json({ isOpen: true, session });
