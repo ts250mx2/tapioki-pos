@@ -306,12 +306,25 @@
 ══════════════════════════════════════ */
 .payModal {
   width: 100%;
-  max-width: 480px;
+  max-width: 820px;
   padding: 2rem;
   border-radius: var(--r-2xl);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
+}
+
+.payModalContent {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .payModalContent {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
 }
 
 .payModalHead {

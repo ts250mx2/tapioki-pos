@@ -122,11 +122,11 @@ input:focus, select:focus {
 
 .grid-responsive {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+  gap: 0.75rem;
 }
 @media(min-width:768px) {
-  .grid-responsive { grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); }
+  .grid-responsive { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
 }
 
 /* ─── SCROLLBAR ─── */

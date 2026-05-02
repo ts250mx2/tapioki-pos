@@ -66,6 +66,7 @@ export default function POSPage() {
   const [openSession, setOpenSession]   = useState<{ IdApertura: number } | null>(null);
   const [cliente, setCliente]           = useState('');
   const [printKitchen, setPrintKitchen] = useState(false);
+  const [printKitchenManual, setPrintKitchenManual] = useState<boolean | null>(null);
   const [ticketConfig, setTicketConfig] = useState<any>(null);
   const router = useRouter();
 
@@ -142,7 +143,7 @@ export default function POSPage() {
     if (!session) { alert('No hay caja abierta. Ve a Caja y abre el turno primero.'); return; }
     setPayment({ efectivo: total.toFixed(2), tarjeta: '', transferencia: '' });
     setCliente('');
-    setPrintKitchen(!!ticketConfig?.PrintKitchenDefault);
+    setPrintKitchen(printKitchenManual !== null ? printKitchenManual : !!ticketConfig?.PrintKitchenDefault);
     setCashError('');
     setPaymentModal(true);
   };
@@ -478,94 +479,101 @@ export default function POSPage() {
               <strong>${total.toFixed(2)}</strong>
             </div>
 
-            {/* ── Payment inputs ── */}
-            <div className={styles.payFields}>
-
-              {/* Cash */}
-              <div className={styles.payField}>
-                <label><Banknote size={16} /> Efectivo</label>
-                <input
-                  type="number" step="0.01" min="0"
-                  placeholder="0.00"
-                  value={payment.efectivo}
-                  onChange={e => setPayment(p => ({ ...p, efectivo: e.target.value }))}
-                />
-                {pEfectivo > 0 && (
-                  <span className={styles.cambio}>
-                    Cambio: ${Math.max(0, pEfectivo - Math.max(0, total - pTarjeta - pTransferencia)).toFixed(2)}
-                  </span>
-                )}
-              </div>
-
-              {/* Card */}
-              <div className={styles.payField}>
-                <label><CreditCard size={16} /> Tarjeta</label>
-                <input
-                  type="number" step="0.01" min="0"
-                  placeholder="0.00"
-                  value={payment.tarjeta}
-                  onChange={e => validatePayment('tarjeta', e.target.value)}
-                />
-                <span className={styles.payHint}>Máx: ${Math.max(0, total - pTransferencia).toFixed(2)}</span>
-              </div>
-
-              {/* Transfer */}
-              <div className={styles.payField}>
-                <label><ArrowRightLeft size={16} /> Transferencia</label>
-                <input
-                  type="number" step="0.01" min="0"
-                  placeholder="0.00"
-                  value={payment.transferencia}
-                  onChange={e => validatePayment('transferencia', e.target.value)}
-                />
-                <span className={styles.payHint}>Máx: ${Math.max(0, total - pTarjeta).toFixed(2)}</span>
-              </div>
-            </div>
-
-            {/* Customer Name */}
-            <div className={styles.payField} style={{ marginTop: '0.5rem' }}>
-              <label>Nombre del Cliente (Opcional)</label>
-              <input
-                type="text"
-                placeholder="Nombre..."
-                value={cliente}
-                onChange={e => setCliente(e.target.value)}
-                autoComplete="off"
-              />
-            </div>
-
-            {/* Print Options */}
-            <div className={styles.payField} style={{ marginTop: '0.5rem', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
-              <input
-                type="checkbox"
-                id="printKitchen"
-                checked={printKitchen}
-                onChange={e => setPrintKitchen(e.target.checked)}
-                style={{ width: '20px', height: '20px', cursor: 'pointer' }}
-              />
-              <label htmlFor="printKitchen" style={{ cursor: 'pointer', margin: 0 }}>Imprimir Ticket de Cocina</label>
-            </div>
-
-            {/* Summary */}
-            <div className={styles.paySummary}>
-              <div className={styles.payRow}>
-                <span>Total pagado</span>
-                <span className={totalPagado >= total ? styles.payOk : styles.payShort}>
-                  ${totalPagado.toFixed(2)}
-                </span>
-              </div>
-              {faltante > 0.01 && (
-                <div className={`${styles.payRow} ${styles.payAlert}`}>
-                  <span>Faltante</span>
-                  <span>–${faltante.toFixed(2)}</span>
+            <div className={styles.payModalContent}>
+              <div className={styles.payFields}>
+                {/* Cash */}
+                <div className={styles.payField}>
+                  <label><Banknote size={16} /> Efectivo</label>
+                  <input
+                    type="number" step="0.01" min="0"
+                    placeholder="0.00"
+                    value={payment.efectivo}
+                    onChange={e => setPayment(p => ({ ...p, efectivo: e.target.value }))}
+                  />
+                  {pEfectivo > 0 && (
+                    <span className={styles.cambio}>
+                      Cambio: ${Math.max(0, pEfectivo - Math.max(0, total - pTarjeta - pTransferencia)).toFixed(2)}
+                    </span>
+                  )}
                 </div>
-              )}
-              {cambio > 0.01 && (
-                <div className={`${styles.payRow} ${styles.payChange}`}>
-                  <span>Cambio a devolver</span>
-                  <span>${cambio.toFixed(2)}</span>
+
+                {/* Card */}
+                <div className={styles.payField}>
+                  <label><CreditCard size={16} /> Tarjeta</label>
+                  <input
+                    type="number" step="0.01" min="0"
+                    placeholder="0.00"
+                    value={payment.tarjeta}
+                    onChange={e => validatePayment('tarjeta', e.target.value)}
+                  />
+                  <span className={styles.payHint}>Máx: ${Math.max(0, total - pTransferencia).toFixed(2)}</span>
                 </div>
-              )}
+
+                {/* Transfer */}
+                <div className={styles.payField}>
+                  <label><ArrowRightLeft size={16} /> Transferencia</label>
+                  <input
+                    type="number" step="0.01" min="0"
+                    placeholder="0.00"
+                    value={payment.transferencia}
+                    onChange={e => validatePayment('transferencia', e.target.value)}
+                  />
+                  <span className={styles.payHint}>Máx: ${Math.max(0, total - pTarjeta).toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className={styles.payOptions}>
+                {/* Customer Name */}
+                <div className={styles.payField}>
+                  <label>Nombre del Cliente (Opcional)</label>
+                  <input
+                    type="text"
+                    placeholder="Nombre..."
+                    value={cliente}
+                    onChange={e => setCliente(e.target.value)}
+                    autoComplete="off"
+                  />
+                </div>
+
+                {/* Print Options */}
+                <div className={styles.payField} style={{ marginTop: '1.25rem', flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
+                  <input
+                    type="checkbox"
+                    id="printKitchen"
+                    checked={printKitchen}
+                    onChange={e => {
+                      setPrintKitchen(e.target.checked);
+                      setPrintKitchenManual(e.target.checked);
+                    }}
+                    style={{ width: '24px', height: '24px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="printKitchen" style={{ cursor: 'pointer', margin: 0, fontSize: '0.95rem', fontWeight: '600' }}>
+                    Imprimir Ticket de Cocina
+                  </label>
+                </div>
+
+                {/* Summary (Inside right col) */}
+                <div className={styles.paySummary} style={{ marginTop: '1.5rem' }}>
+                  <div className={styles.payRow}>
+                    <span>Total pagado</span>
+                    <span className={totalPagado >= total ? styles.payOk : styles.payShort}>
+                      ${totalPagado.toFixed(2)}
+                    </span>
+                  </div>
+                  {faltante > 0.01 && (
+                    <div className={`${styles.payRow} ${styles.payAlert}`}>
+                      <span>Faltante</span>
+                      <span>–${faltante.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {cambio > 0.01 && (
+                    <div className={`${styles.payRow} ${styles.payChange}`}>
+                      <span>Cambio</span>
+                      <span>${cambio.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             {cashError && (
