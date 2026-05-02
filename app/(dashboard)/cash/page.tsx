@@ -46,6 +46,7 @@ export default function CashPage() {
         method: 'POST',
         body: JSON.stringify({ message: 'APERTURA DE CAJA', idApertura: data.id })
       });
+      window.open(`/print/apertura/${data.id}`, '_blank');
       fetchStatus();
     }
   };
