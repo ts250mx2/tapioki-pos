@@ -4,7 +4,8 @@ import pool from '@/lib/db';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const idRaw = searchParams.get('id');
+    const id = (idRaw && idRaw !== 'undefined' && idRaw !== 'null') ? parseInt(idRaw) : null;
 
     let query = '';
     let params: any[] = [];
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
         SELECT IdApertura, FechaApertura, FechaCierre, FondoCaja, IdCajero, IdSupervisorCierre
         FROM tblAperturasCierres
         WHERE (IdSupervisorCierre = 0 OR IdSupervisorCierre IS NULL)
-        ORDER BY FechaApertura DESC
+        ORDER BY IdApertura DESC
         LIMIT 1
       `;
     }

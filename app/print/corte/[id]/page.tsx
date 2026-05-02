@@ -10,14 +10,16 @@ export default function CortePrint() {
   const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
-    if (params && params.id) {
+    if (params?.id) {
       fetchData();
     }
-  }, [params]);
+  }, [params?.id]);
 
   const fetchData = async () => {
     try {
       const sessionId = params.id;
+      if (!sessionId || sessionId === 'undefined') return;
+
       const [statusRes, configRes] = await Promise.all([
         fetch(`/api/cash/status?id=${sessionId}`),
         fetch('/api/config/ticket')
@@ -25,10 +27,10 @@ export default function CortePrint() {
       const statusData = await statusRes.json();
       const configData = await configRes.json();
       
-      if (statusData.session) {
+      if (statusData.isOpen && statusData.session) {
         setData(statusData.session);
       } else {
-        console.error('No session data found for ID:', sessionId);
+        setData({ error: 'Sesión no encontrada' });
       }
       setConfig(configData);
       
@@ -44,7 +46,8 @@ export default function CortePrint() {
     }
   };
 
-  if (!data || !config) return <div>Cargando corte...</div>;
+  if (!data || !config) return <div style={{ padding: '20px' }}>Cargando corte...</div>;
+  if (data.error) return <div style={{ padding: '20px', color: 'red' }}>Error: {data.error}</div>;
 
   return (
     <div className={styles.ticket}>
