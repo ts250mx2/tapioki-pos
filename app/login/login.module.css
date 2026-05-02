@@ -52,6 +52,13 @@
   margin-bottom: 0.5rem;
 }
 
+.logo {
+  width: 220px;
+  height: auto;
+  display: block;
+}
+
+
 .subtitle {
   color: var(--text-muted);
   margin-bottom: 2rem;

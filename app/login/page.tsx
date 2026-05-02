@@ -48,11 +48,10 @@ export default function LoginPage() {
       <div className={`${styles.card} glass animate-scale`}>
         {/* ── Logo using plain img tag ── */}
         <div className={styles.logoWrapper}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/logo.png"
-            alt="Tapioki Bubble Tea & More"
-            style={{ width: '220px', height: 'auto', display: 'block' }}
+            alt="Tapioki Logo"
+            className={styles.logo}
           />
         </div>
 

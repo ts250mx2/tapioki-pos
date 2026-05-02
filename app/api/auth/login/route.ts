@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       
       const cookie = serialize('auth_session', JSON.stringify(user), {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Permitir en HTTP (necesario para acceso por IP sin SSL)
         sameSite: 'strict',
         maxAge: 60 * 60 * 24 * 7, // 1 week
         path: '/',

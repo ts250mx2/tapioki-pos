@@ -19,12 +19,22 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     const admin = user.IdPuesto === 1;
     setIsAdmin(admin);
 
-    if (!admin) {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+
+    if (!admin || isMobile) {
       setCollapsed(true);
     } else {
       const saved = localStorage.getItem('sidebarCollapsed');
       setCollapsed(saved === 'true');
     }
+
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const toggle = () => {
