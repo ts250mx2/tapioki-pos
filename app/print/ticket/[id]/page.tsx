@@ -63,10 +63,12 @@ export default function TicketPrint() {
         {config.Header4 && <div>{config.Header4}</div>}
         {config.Header5 && <div>{config.Header5}</div>}
         
-        <div style={{ marginTop: '10px', fontSize: '11px' }}>
-          <div>Fecha: {new Date(venta.FechaVenta).toLocaleString()}</div>
-          <div>Folio: {venta.Folio}</div>
-          {venta.Cliente && <div style={{ fontWeight: 'bold', fontSize: '12px', marginTop: '5px' }}>CLIENTE: {venta.Cliente.toUpperCase()}</div>}
+        <div style={{ marginTop: '10px', fontSize: '10px' }}>
+          <div className={styles.row}>
+            <span>Folio: {venta.Folio}</span>
+            <span>Fecha: {new Date(venta.FechaVenta).toLocaleDateString()} {new Date(venta.FechaVenta).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+          {venta.Cliente && <div style={{ fontWeight: 'bold', fontSize: '11px', marginTop: '4px' }}>CLIENTE: {venta.Cliente.toUpperCase()}</div>}
         </div>
       </div>
 
