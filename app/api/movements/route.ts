@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       VALUES (?, 1, ?, ?, ?, NOW(), ?)
     `, [nextId, idApertura, type === 'salida' ? -amount : amount, concept, user.IdUsuario]);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, id: nextId });
   } catch (error) {
     console.error('Movement error:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });

@@ -66,8 +66,10 @@ export default function CashPage() {
     });
 
     if (res.ok) {
+      const data = await res.json();
       setMovementModal(null);
       setMovData({ amount: '', concept: '' });
+      window.open(`/print/movimiento/${data.id}`, '_blank');
       fetchMovements(status.session.IdApertura);
     }
   };
