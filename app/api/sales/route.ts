@@ -41,22 +41,24 @@ export async function POST(request: Request) {
     `, [idVenta, idApertura, folioStr, total, idApertura,
         efectivo || 0, tarjeta || 0, transferencia || 0, cliente || '']);
 
-    /* ── 6. Insert tblDetalleVentas (each item + its extras as separate rows) ── */
+    /* ── 6. Insert tblDetalleVentas (each item + its extras linked) ── */
     for (const item of cart) {
       // Main product
-      await pool.query(`
+      const [mainRes] = await pool.query(`
         INSERT INTO tblDetalleVentas
           (IdVenta, IdProducto, Cantidad, Precio, Fecha, Folio, IdApertura, TipoPrecio, Descuento, EsExtra)
         VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, 0, ?)
       `, [idVenta, item.productId, item.quantity, item.price, folio, idApertura, item.typePrice, item.isExtra || 0]);
 
-      // Extras (each as qty=1 per unit of parent item)
+      const parentId = (mainRes as any).insertId;
+
+      // Extras (each linked to parentId)
       for (const extra of item.extras) {
         await pool.query(`
           INSERT INTO tblDetalleVentas
-            (IdVenta, IdProducto, Cantidad, Precio, Fecha, Folio, IdApertura, TipoPrecio, Descuento, EsExtra)
-          VALUES (?, ?, ?, ?, NOW(), ?, ?, 1, 0, 1)
-        `, [idVenta, extra.IdProducto, item.quantity, extra.Precio1, folio, idApertura]);
+            (IdVenta, IdProducto, Cantidad, Precio, Fecha, Folio, IdApertura, TipoPrecio, Descuento, EsExtra, IdDetallePadre)
+          VALUES (?, ?, ?, ?, NOW(), ?, ?, 1, 0, 1, ?)
+        `, [idVenta, extra.IdProducto, item.quantity, extra.Precio1, folio, idApertura, parentId]);
       }
     }
 

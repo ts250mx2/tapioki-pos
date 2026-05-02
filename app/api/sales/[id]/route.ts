@@ -16,7 +16,7 @@ export async function GET(
     }
 
     const [details] = await pool.query(`
-      SELECT d.*, p.Producto, d.esExtra, p.Precio2, p.Precio3
+      SELECT d.*, p.Producto, d.esExtra, p.Precio2, p.Precio3, d.IdDetallePadre
       FROM tblDetalleVentas d
       JOIN tblProductos p ON d.IdProducto = p.IdProducto
       WHERE d.IdVenta = ?

@@ -52,36 +52,41 @@ export default function KitchenPrint() {
       <div className={styles.divider}></div>
 
       <div className={styles.items}>
-        {details.map((item: any, idx: number) => (
-          <div key={idx} className={item.EsExtra === 1 ? styles.extras : styles.item}>
-            <div className={styles.itemMain}>
-              {item.EsExtra === 1 ? (
-                <span>+ {item.Producto}</span>
-              ) : (
-                <>
-                  <span>[{item.Cantidad}]</span>
-                  <span>{item.Producto}</span>
-                </>
-              )}
-            </div>
-            {item.EsExtra !== 1 && item.TipoPrecio > 0 && (
-              <div style={{ 
-                fontSize: '22px', 
-                fontWeight: '900', 
-                marginLeft: '35px', 
-                marginTop: '5px',
-                border: '2px solid #000',
-                padding: '2px 5px',
-                display: 'inline-block'
-              }}>
-                * {
-                  item.TipoPrecio === 1 ? 'CHICO' : 
-                  (item.TipoPrecio === 2 && item.Precio3 > 0) ? 'MEDIANO' : 'GRANDE'
-                }
+        {details.filter((i: any) => !i.IdDetallePadre).map((item: any, idx: number) => {
+          const itemExtras = details.filter((ex: any) => ex.IdDetallePadre === item.IdDetalleVenta);
+          
+          return (
+            <div key={idx} className={styles.item}>
+              <div className={styles.itemMain}>
+                <span>[{item.Cantidad}]</span>
+                <span>{item.Producto}</span>
               </div>
-            )}
-          </div>
-        ))}
+              
+              {item.TipoPrecio > 0 && (
+                <div style={{ 
+                  fontSize: '22px', 
+                  fontWeight: '900', 
+                  marginLeft: '35px', 
+                  marginTop: '5px',
+                  border: '2px solid #000',
+                  padding: '2px 5px',
+                  display: 'inline-block'
+                }}>
+                  * {
+                    item.TipoPrecio === 1 ? 'CHICO' : 
+                    (item.TipoPrecio === 2 && item.Precio3 > 0) ? 'MEDIANO' : 'GRANDE'
+                  }
+                </div>
+              )}
+
+              {itemExtras.map((extra: any, eIdx: number) => (
+                <div key={eIdx} className={styles.extras}>
+                  + {extra.Producto}
+                </div>
+              ))}
+            </div>
+          );
+        })}
       </div>
 
       <div className={styles.divider}></div>
