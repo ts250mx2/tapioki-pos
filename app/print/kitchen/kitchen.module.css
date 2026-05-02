@@ -4,9 +4,9 @@
   background: white;
   color: #000;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: 1.3;
 }
 
 .header {
@@ -15,14 +15,14 @@
 }
 
 .title {
-  font-size: 24px; /* Very large title */
+  font-size: 20px; /* Large title */
   font-weight: bold;
 }
 
 .cliente {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
-  margin: 10px 0;
+  margin: 6px 0;
   border: 2px solid black;
   padding: 5px;
   text-align: center;
@@ -42,14 +42,14 @@
 }
 
 .itemMain {
-  font-size: 20px;
+  font-size: 17px;
   font-weight: bold;
   display: flex;
   gap: 10px;
 }
 
 .extras {
-  font-size: 16px;
+  font-size: 14px;
   margin-left: 20px;
   font-style: italic;
 }
