@@ -234,6 +234,14 @@ export default function POSPage() {
 
     setProcessing(true);
     setCashError('');
+
+    // Pre-open windows to avoid popup blockers after async fetch
+    const ticketWin = window.open('about:blank', '_blank', 'width=420,height=650');
+    let kitchenWin: Window | null = null;
+    if (printKitchen) {
+      kitchenWin = window.open('about:blank', '_blank', 'width=420,height=650');
+    }
+
     try {
       const res  = await fetch('/api/sales', {
         method: 'POST',
@@ -255,15 +263,23 @@ export default function POSPage() {
           next[activeCartIdx] = [];
           return next;
         });
-        window.open(`/print/ticket/${data.idVenta}`, '_blank', 'width=420,height=650');
-        if (printKitchen) {
-          window.open(`/print/kitchen/${data.idVenta}`, '_blank', 'width=420,height=650');
+
+        if (ticketWin) {
+          ticketWin.location.href = `/print/ticket/${data.idVenta}`;
         }
-        // alert removed to prevent UI blocking
+        if (printKitchen && kitchenWin) {
+          kitchenWin.location.href = `/print/kitchen/${data.idVenta}`;
+        }
       } else {
+        if (ticketWin) ticketWin.close();
+        if (kitchenWin) kitchenWin.close();
         setCashError(data.message || 'Error al procesar la venta');
       }
-    } catch { setCashError('Error de conexión'); }
+    } catch { 
+      if (ticketWin) ticketWin.close();
+      if (kitchenWin) kitchenWin.close();
+      setCashError('Error de conexión'); 
+    }
     finally   { setProcessing(false); }
   };
 
