@@ -18,13 +18,13 @@ export default function KitchenPrint() {
       const ticketData = await res.json();
       setData(ticketData);
 
-      // Auto-print
+      // Auto-print faster
       setTimeout(() => {
         window.print();
         window.addEventListener('afterprint', () => {
           window.close();
         }, { once: true });
-      }, 800);
+      }, 500);
     } catch (err) {
       console.error('Error fetching kitchen data:', err);
       setData({ error: true });

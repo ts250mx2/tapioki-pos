@@ -24,10 +24,13 @@ export default function CortePrint() {
     setData(statusData.session);
     setConfig(configData);
     
-    // Auto-print
+    // Auto-print faster
     setTimeout(() => {
       window.print();
-    }, 800);
+      window.addEventListener('afterprint', () => {
+        window.close();
+      }, { once: true });
+    }, 500);
   };
 
   if (!data || !config) return <div>Cargando corte...</div>;

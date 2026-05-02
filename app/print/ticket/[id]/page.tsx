@@ -35,13 +35,13 @@ export default function TicketPrint() {
         body: JSON.stringify({ idVenta: params.id, folio: ticketData.venta.Folio })
       });
 
-      // Auto-print
+      // Auto-print faster
       setTimeout(() => {
         window.print();
         window.addEventListener('afterprint', () => {
           window.close();
         }, { once: true });
-      }, 800);
+      }, 500);
     } catch (err) {
       console.error('Error fetching ticket:', err);
       setData({ error: true });
