@@ -3,13 +3,14 @@ import pool from '@/lib/db';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const [rows] = await pool.query(`
       SELECT * FROM tblRetiros 
       WHERE IdRetiro = ?
-    `, [params.id]);
+    `, [id]);
 
     const movement = (rows as any[])[0];
     if (!movement) return NextResponse.json({ message: 'No encontrado' }, { status: 404 });
