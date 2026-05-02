@@ -15,7 +15,7 @@ export default function CortePrint() {
 
   const fetchData = async () => {
     const [statusRes, configRes] = await Promise.all([
-      fetch(`/api/cash/status`),
+      fetch(`/api/cash/status?id=${params.id}`),
       fetch('/api/config/ticket')
     ]);
     const statusData = await statusRes.json();

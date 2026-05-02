@@ -1,16 +1,29 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // 1. Get current open session
-    const [rows] = await pool.query(`
-      SELECT IdApertura, FechaApertura, FondoCaja, IdCajero
-      FROM tblAperturasCierres
-      WHERE (IdSupervisorCierre = 0 OR IdSupervisorCierre IS NULL)
-      ORDER BY FechaApertura DESC
-      LIMIT 1
-    `);
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    let query = '';
+    let params: any[] = [];
+
+    if (id) {
+      query = 'SELECT IdApertura, FechaApertura, FechaCierre, FondoCaja, IdCajero, IdSupervisorCierre FROM tblAperturasCierres WHERE IdApertura = ?';
+      params = [id];
+    } else {
+      query = `
+        SELECT IdApertura, FechaApertura, FechaCierre, FondoCaja, IdCajero, IdSupervisorCierre
+        FROM tblAperturasCierres
+        WHERE (IdSupervisorCierre = 0 OR IdSupervisorCierre IS NULL)
+        ORDER BY FechaApertura DESC
+        LIMIT 1
+      `;
+    }
+
+    // 1. Get session
+    const [rows] = await pool.query(query, params);
 
     const sessionData = (rows as any[])[0] || null;
     if (!sessionData) return NextResponse.json({ isOpen: false, session: null });
