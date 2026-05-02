@@ -3,10 +3,10 @@
   padding: 5mm;
   background: white;
   color: #000;
-  font-family: Arial, Helvetica, sans-serif; /* More standard, bolder font */
-  font-size: 13px;
-  font-weight: 600; /* Bolder by default */
-  line-height: 1.3;
+  font-family: 'Courier New', Courier, monospace; /* More classic ticket font */
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 .header {
@@ -20,8 +20,8 @@
 }
 
 .divider {
-  border-top: 2px solid #000; /* Stronger divider */
-  margin: 8px 0;
+  border-top: 1px dashed #000;
+  margin: 6px 0;
 }
 
 .table {
@@ -53,7 +53,6 @@
   font-weight: bold;
   text-align: center;
   margin: 8px 0;
-  text-decoration: underline;
 }
 
 .productRow {

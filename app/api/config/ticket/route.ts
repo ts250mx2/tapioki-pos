@@ -14,7 +14,9 @@ export async function GET() {
         Header5 VARCHAR(255),
         Footer1 VARCHAR(255),
         Footer2 VARCHAR(255),
-        Footer3 VARCHAR(255)
+        Footer3 VARCHAR(255),
+        PrintKitchenDefault TINYINT DEFAULT 0,
+        RequireCustomerName TINYINT DEFAULT 0
       )
     `);
 

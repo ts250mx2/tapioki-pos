@@ -66,6 +66,7 @@ export default function POSPage() {
   const [openSession, setOpenSession]   = useState<{ IdApertura: number } | null>(null);
   const [cliente, setCliente]           = useState('');
   const [printKitchen, setPrintKitchen] = useState(false);
+  const [ticketConfig, setTicketConfig] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => { fetchData(); checkSession(); }, []);
@@ -87,11 +88,16 @@ export default function POSPage() {
 
   const fetchData = async () => {
     try {
-      const res  = await fetch('/api/products');
+      const [res, configRes]  = await Promise.all([
+        fetch('/api/products'),
+        fetch('/api/config/ticket')
+      ]);
       const data = await res.json();
+      const configData = await configRes.json();
       setProducts(data.products);
       setAllExtras(data.products.filter((p: Product) => p.EsExtra === 1));
       setCategories(data.categories);
+      setTicketConfig(configData);
       setLoading(false);
     } catch (err) { console.error('POS fetchData error:', err); }
   };
@@ -136,7 +142,7 @@ export default function POSPage() {
     if (!session) { alert('No hay caja abierta. Ve a Caja y abre el turno primero.'); return; }
     setPayment({ efectivo: total.toFixed(2), tarjeta: '', transferencia: '' });
     setCliente('');
-    setPrintKitchen(false);
+    setPrintKitchen(!!ticketConfig?.PrintKitchenDefault);
     setCashError('');
     setPaymentModal(true);
   };
@@ -223,6 +229,7 @@ export default function POSPage() {
     if (pTarjeta > total)       { setCashError('Tarjeta no puede ser mayor al total.'); return; }
     if (pTransferencia > total) { setCashError('Transferencia no puede ser mayor al total.'); return; }
     if (pTarjeta + pTransferencia > total) { setCashError('Tarjeta + Transferencia no puede exceder el total.'); return; }
+    if (ticketConfig?.RequireCustomerName && !cliente.trim()) { setCashError('El nombre del cliente es obligatorio.'); return; }
 
     setProcessing(true);
     setCashError('');

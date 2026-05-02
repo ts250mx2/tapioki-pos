@@ -85,7 +85,7 @@ export default function TicketPrint() {
               <span>${(item.Cantidad * item.Precio).toFixed(2)}</span>
             </div>
             {item.TipoPrecio > 0 && (
-              <div style={{ fontSize: '14px', color: '#000', marginLeft: '5px', fontWeight: 'bold', marginTop: '2px', textDecoration: 'underline' }}>
+              <div style={{ fontSize: '11px', color: '#000', marginLeft: '5px', fontWeight: 'bold', marginTop: '2px' }}>
                 * TAMAÑO: {
                   (item.TipoPrecio === 1 ? 'CHICO' : 
                   (item.TipoPrecio === 2 && item.Precio3 > 0) ? 'MEDIANO' : 'GRANDE')
