@@ -10,27 +10,38 @@ export default function CortePrint() {
   const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (params && params.id) {
+      fetchData();
+    }
+  }, [params]);
 
   const fetchData = async () => {
-    const [statusRes, configRes] = await Promise.all([
-      fetch(`/api/cash/status?id=${params.id}`),
-      fetch('/api/config/ticket')
-    ]);
-    const statusData = await statusRes.json();
-    const configData = await configRes.json();
-    
-    setData(statusData.session);
-    setConfig(configData);
-    
-    // Auto-print faster
-    setTimeout(() => {
-      window.print();
-      window.addEventListener('afterprint', () => {
-        window.close();
-      }, { once: true });
-    }, 500);
+    try {
+      const sessionId = params.id;
+      const [statusRes, configRes] = await Promise.all([
+        fetch(`/api/cash/status?id=${sessionId}`),
+        fetch('/api/config/ticket')
+      ]);
+      const statusData = await statusRes.json();
+      const configData = await configRes.json();
+      
+      if (statusData.session) {
+        setData(statusData.session);
+      } else {
+        console.error('No session data found for ID:', sessionId);
+      }
+      setConfig(configData);
+      
+      // Auto-print faster
+      setTimeout(() => {
+        window.print();
+        window.addEventListener('afterprint', () => {
+          window.close();
+        }, { once: true });
+      }, 700);
+    } catch (error) {
+      console.error('Error fetching corte data:', error);
+    }
   };
 
   if (!data || !config) return <div>Cargando corte...</div>;
