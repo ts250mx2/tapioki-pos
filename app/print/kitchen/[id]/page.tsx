@@ -64,12 +64,12 @@ export default function KitchenPrint() {
               
               {item.TipoPrecio > 0 && (
                 <div style={{ 
-                  fontSize: '22px', 
+                  fontSize: '16px', 
                   fontWeight: '900', 
-                  marginLeft: '35px', 
-                  marginTop: '5px',
-                  border: '2px solid #000',
-                  padding: '2px 5px',
+                  marginLeft: '25px', 
+                  marginTop: '4px',
+                  border: '1.5px solid #000',
+                  padding: '1px 4px',
                   display: 'inline-block'
                 }}>
                   * {
