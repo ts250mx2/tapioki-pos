@@ -3,10 +3,11 @@
   padding: 5mm;
   background: white;
   color: #000;
-  font-family: 'Courier New', Courier, monospace; /* More classic ticket font */
-  font-size: 11px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
 }
 
 .header {
