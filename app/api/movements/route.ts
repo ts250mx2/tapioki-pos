@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     // Use negative for salidas, positive for entradas?
     // Usually tblRetiros stores magnitude and we distinguish by concept or type.
     // I'll store it as is and use concept to prefix with [ENTRADA] or [SALIDA]
-    
+
     await pool.query(`
       INSERT INTO tblRetiros 
       (IdRetiro, IdComputadora, IdApertura, Efectivo, Concepto, Fecha, IdSupervisor) 
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     const [rows] = await pool.query(`
       SELECT * FROM tblRetiros 
       WHERE IdApertura = ? 
-      ORDER BY Fecha DESC
+      ORDER BY FechaRetiro DESC
     `, [idApertura]);
 
     return NextResponse.json(rows);
