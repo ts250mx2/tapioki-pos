@@ -19,7 +19,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           style={{
             flex: 1,
             marginLeft: collapsed ? 0 : `${SIDEBAR_W}px`,
-            padding: '2rem',
+            padding: 'var(--main-padding, 2rem)',
             backgroundColor: 'var(--bg)',
             transition: 'margin-left 0.3s cubic-bezier(0.4,0,0.2,1)',
             minWidth: 0,

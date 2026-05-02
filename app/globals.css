@@ -42,7 +42,15 @@
   --r-xl: 1.375rem;
   --r-2xl:1.875rem;
 
+  --main-padding: 2rem;
+
   --ease: all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --main-padding: 1rem;
+  }
 }
 
 /* ─── DARK MODE ─── */

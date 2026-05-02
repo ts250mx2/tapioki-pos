@@ -1,8 +1,17 @@
 .posContainer {
   display: flex;
   gap: 1.75rem;
-  height: calc(100vh - 4rem);
+  height: calc(100vh - 4rem - 70px);
   overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .posContainer {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+    gap: 1.5rem;
+  }
 }
 
 .mainContent {
@@ -12,6 +21,14 @@
   overflow-y: auto;
   padding-right: 0.25rem;
 }
+
+@media (max-width: 1024px) {
+  .mainContent {
+    overflow-y: visible;
+    height: auto;
+  }
+}
+
 
 .header {
   display: flex;

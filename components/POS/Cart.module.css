@@ -9,6 +9,17 @@
   top: 1rem;
 }
 
+@media (max-width: 1024px) {
+  .cart {
+    width: 100%;
+    height: auto;
+    position: static;
+    margin-top: 1rem;
+    max-height: 500px;
+    border-top: 1px solid var(--border);
+  }
+}
+
 .header {
   padding: 0.875rem 1.25rem;
   border-bottom: 1px solid var(--border);
