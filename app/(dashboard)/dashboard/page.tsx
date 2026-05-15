@@ -185,24 +185,46 @@ function Heatmap({ data }: { data: HeatCell[] }) {
   );
 }
 
+// ─── Helpers: compute date strings for each preset ────────────────────────
+function toISO(d: Date) {
+  return d.toISOString().split('T')[0];
+}
+function datesForPeriod(p: Period): [string, string] {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  switch (p) {
+    case 'today':     return [toISO(today), toISO(today)];
+    case 'yesterday': {
+      const y = new Date(today); y.setDate(y.getDate() - 1);
+      return [toISO(y), toISO(y)];
+    }
+    case 'week': {
+      const w = new Date(today); w.setDate(w.getDate() - 6);
+      return [toISO(w), toISO(today)];
+    }
+    case 'month': {
+      const m = new Date(today); m.setDate(m.getDate() - 29);
+      return [toISO(m), toISO(today)];
+    }
+  }
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const [period,   setPeriod]   = useState<Period>('today');
   const [groupBy,  setGroupBy]  = useState<GroupBy>('categoria');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo,   setDateTo]   = useState('');
+  // Always work with concrete dates; init to today
+  const [dateFrom, setDateFrom] = useState(() => datesForPeriod('today')[0]);
+  const [dateTo,   setDateTo]   = useState(() => datesForPeriod('today')[1]);
   const [data,     setData]     = useState<any>(null);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
 
-  const fetchData = useCallback(async (
-    p: Period, g: GroupBy, from: string, to: string
-  ) => {
+  const fetchData = useCallback(async (g: GroupBy, from: string, to: string) => {
+    if (!from || !to) return;
     setLoading(true);
     setError('');
     try {
-      const params = new URLSearchParams({ period: p, groupBy: g });
-      if (from && to) { params.set('dateFrom', from); params.set('dateTo', to); }
+      const params = new URLSearchParams({ groupBy: g, dateFrom: from, dateTo: to });
       const res = await fetch(`/api/dashboard/sales?${params}`);
       if (!res.ok) throw new Error('Error al cargar datos');
       setData(await res.json());
@@ -214,21 +236,21 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    fetchData(period, groupBy, dateFrom, dateTo);
-  }, [period, groupBy, dateFrom, dateTo, fetchData]);
+    fetchData(groupBy, dateFrom, dateTo);
+  }, [groupBy, dateFrom, dateTo, fetchData]);
 
-  // When a preset is clicked, clear any custom range
+  // Period button clicked — sets the date pickers to the preset range
   const handlePeriod = (p: Period) => {
-    setDateFrom('');
-    setDateTo('');
-    setPeriod(p);
+    const [from, to] = datesForPeriod(p);
+    setDateFrom(from);
+    setDateTo(to);
   };
 
-  // When a date changes, deselect period visually (keep it for fallback)
-  const handleDateFrom = (v: string) => { setDateFrom(v); };
-  const handleDateTo   = (v: string) => { setDateTo(v); };
-
-  const isCustomRange = !!(dateFrom && dateTo);
+  // Detect which preset the current dates match (for active highlight)
+  const activePeriod: Period | null = (['today','yesterday','week','month'] as Period[]).find(p => {
+    const [f, t] = datesForPeriod(p);
+    return f === dateFrom && t === dateTo;
+  }) ?? null;
 
 
   const periodLabel: Record<Period, string> = {
@@ -238,9 +260,9 @@ export default function DashboardPage() {
     month:     'Últimos 30 días',
   };
 
-  const activeLabel = isCustomRange
-    ? `${dateFrom} → ${dateTo}`
-    : periodLabel[period];
+  const activeLabel = activePeriod
+    ? periodLabel[activePeriod]
+    : `${dateFrom} → ${dateTo}`;
 
   const kpi: KPI = data?.kpi ?? {
     totalVentas: 0, numTransacciones: 0, ticketPromedio: 0,
@@ -259,50 +281,39 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className={styles.filterBar}>
-          {/* Period buttons */}
-          <div className={styles.periodBar}>
-            {(['today','yesterday','week','month'] as Period[]).map(p => (
-              <button
-                key={p}
-                id={`period-${p}`}
-                className={`${styles.periodBtn} ${!isCustomRange && period === p ? styles.periodActive : ''}`}
-                onClick={() => handlePeriod(p)}
-              >
-                {p === 'today'     && <><Calendar size={14} /> Hoy</>}
-                {p === 'yesterday' && <><Calendar size={14} /> Ayer</>}
-                {p === 'week'      && <><Calendar size={14} /> Semana</>}
-                {p === 'month'     && <><Calendar size={14} /> Mes</>}
-              </button>
-            ))}
-          </div>
+        {/* Single filter row: preset buttons + date pickers */}
+        <div className={styles.filterRow}>
+          {(['today','yesterday','week','month'] as Period[]).map(p => (
+            <button
+              key={p}
+              id={`period-${p}`}
+              className={`${styles.periodBtn} ${activePeriod === p ? styles.periodActive : ''}`}
+              onClick={() => handlePeriod(p)}
+            >
+              {p === 'today'     && <><Calendar size={14} /> Hoy</>}
+              {p === 'yesterday' && <><Calendar size={14} /> Ayer</>}
+              {p === 'week'      && <><Calendar size={14} /> Semana</>}
+              {p === 'month'     && <><Calendar size={14} /> Mes</>}
+            </button>
+          ))}
 
-          {/* Custom date range */}
-          <div className={styles.dateRange}>
-            <span className={styles.dateRangeLabel}>Rango personalizado:</span>
-            <input
-              id="date-from"
-              type="date"
-              value={dateFrom}
-              onChange={e => handleDateFrom(e.target.value)}
-              className={styles.dateInput}
-            />
-            <span className={styles.dateSep}>→</span>
-            <input
-              id="date-to"
-              type="date"
-              value={dateTo}
-              onChange={e => handleDateTo(e.target.value)}
-              className={styles.dateInput}
-            />
-            {isCustomRange && (
-              <button
-                className={styles.dateClear}
-                onClick={() => { setDateFrom(''); setDateTo(''); }}
-                title="Limpiar rango"
-              >✕</button>
-            )}
-          </div>
+          <div className={styles.dateDivider} />
+
+          <input
+            id="date-from"
+            type="date"
+            value={dateFrom}
+            onChange={e => setDateFrom(e.target.value)}
+            className={styles.dateInput}
+          />
+          <span className={styles.dateSep}>→</span>
+          <input
+            id="date-to"
+            type="date"
+            value={dateTo}
+            onChange={e => setDateTo(e.target.value)}
+            className={styles.dateInput}
+          />
         </div>
       </header>
 

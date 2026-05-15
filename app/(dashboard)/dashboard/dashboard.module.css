@@ -33,21 +33,21 @@
   margin-top: 0.2rem;
 }
 
-/* ─── Filter bar (period + date range stacked) ───────────────────────────── */
-.filterBar {
+/* ─── Filter row (single line: presets + date pickers) ───────────────────── */
+.filterRow {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.65rem;
-}
-
-/* ─── Period Buttons ─────────────────────────────────────────────────────── */
-.periodBar {
-  display: flex;
+  align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  align-items: center;
   justify-content: flex-end;
+}
+
+.dateDivider {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 0.25rem;
+  flex-shrink: 0;
 }
 
 .periodBtn {
