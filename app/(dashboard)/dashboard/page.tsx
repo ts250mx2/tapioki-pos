@@ -328,7 +328,7 @@ export default function DashboardPage() {
           <div className={styles.kpiInfo}>
             <span className={styles.kpiLabel}>Ventas Totales</span>
             <span className={styles.kpiValue}>{loading ? '—' : fmt(kpi.totalVentas)}</span>
-            <span className={styles.kpiSub}>{periodLabel[period]}</span>
+            <span className={styles.kpiSub}>{activeLabel}</span>
           </div>
         </div>
 
