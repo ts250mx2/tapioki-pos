@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, DollarSign,
   Users, LogOut, ChevronRight, TrendingUp,
   Sun, Moon, Tags, Settings, UserCircle,
-  ChevronsLeft, ChevronsRight,
+  ChevronsLeft, ChevronsRight, BarChart2,
 } from 'lucide-react';
 import { useTheme }   from './ThemeProvider';
 import { useSidebar } from './SidebarContext';
@@ -20,8 +20,9 @@ export default function Sidebar() {
 
   const menuItems = [
     { name: 'POS / Venta',   icon: ShoppingCart,    path: '/' },
-    { name: 'Caja / Cortes', icon: TrendingUp,      path: '/cash' },
-    { name: 'Movimientos',   icon: DollarSign,      path: '/movements' },
+    { name: 'Dashboard',     icon: BarChart2,       path: '/dashboard',   adminOnly: true },
+    { name: 'Caja / Cortes', icon: TrendingUp,      path: '/cash',        adminOnly: true },
+    { name: 'Movimientos',   icon: DollarSign,      path: '/movements',   adminOnly: true },
     { name: 'Productos',     icon: Package,         path: '/products',    adminOnly: true },
     { name: 'Categorías',    icon: Tags,            path: '/categories',  adminOnly: true },
     { name: 'Usuarios',      icon: UserCircle,      path: '/users',       adminOnly: true },
@@ -47,10 +48,7 @@ export default function Sidebar() {
         <nav className={styles.nav}>
           {menuItems.map((item) => {
             // Role-based visibility
-            if (!isAdmin) {
-              const allowedPaths = ['/', '/cash'];
-              if (!allowedPaths.includes(item.path)) return null;
-            }
+            if (item.adminOnly && !isAdmin) return null;
             
             const isActive = pathname === item.path;
             return (
