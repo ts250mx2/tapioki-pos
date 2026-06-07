@@ -6,7 +6,7 @@ import {
   LayoutDashboard, ShoppingCart, Package, DollarSign,
   Users, LogOut, ChevronRight, TrendingUp,
   Sun, Moon, Tags, Settings, UserCircle,
-  ChevronsLeft, ChevronsRight, BarChart2,
+  ChevronsLeft, ChevronsRight, BarChart2, Sparkles,
 } from 'lucide-react';
 import { useTheme }   from './ThemeProvider';
 import { useSidebar } from './SidebarContext';
@@ -27,6 +27,7 @@ export default function Sidebar() {
     { name: 'Categorías',    icon: Tags,            path: '/categories',  adminOnly: true },
     { name: 'Usuarios',      icon: UserCircle,      path: '/users',       adminOnly: true },
     { name: 'Config Ticket', icon: Settings,        path: '/ticket-config', adminOnly: true },
+    { name: 'Agente inteligente', icon: Sparkles,   path: '/agente-inteligente', adminOnly: true },
   ];
 
   const handleLogout = async () => {
