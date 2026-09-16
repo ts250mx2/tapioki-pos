@@ -23,7 +23,7 @@ interface KPI {
 }
 
 interface TrendPoint { fecha: string; total: number; transacciones: number; }
-interface BreakItem  { nombre: string; total: number; cantidad: number; }
+interface BreakItem  { id?: number | null; nombre: string; total: number; cantidad: number; }
 interface HeatCell   { diaSemana: number; hora: number; total: number; transacciones: number; }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -47,7 +47,7 @@ function buildTrendData(raw: TrendPoint[], period: Period): TrendPoint[] {
 }
 
 // ─── Mini SVG Line Chart ──────────────────────────────────────────────────────
-function LineChart({ data }: { data: TrendPoint[] }) {
+function LineChart({ data, group }: { data: TrendPoint[]; group: 'dia' | 'semana' | 'mes' }) {
   if (data.length === 0) return <div className={styles.chartEmpty}>Sin datos para el período</div>;
 
   const W = 780, H = 200, PAD = { t: 16, r: 20, b: 40, l: 60 };
@@ -65,6 +65,18 @@ function LineChart({ data }: { data: TrendPoint[] }) {
   ].join(' ');
 
   const yTicks = [0, 0.25, 0.5, 0.75, 1].map(r => ({ v: maxVal * r, y: toY(maxVal * r) }));
+
+  const formatLabel = (dateStr: string) => {
+    const d = new Date(dateStr + 'T12:00:00');
+    if (isNaN(d.getTime())) return dateStr;
+    if (group === 'mes') {
+      return d.toLocaleDateString('es-MX', { month: 'short', year: '2-digit' }).toUpperCase();
+    }
+    if (group === 'semana') {
+      return 'Sem ' + d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
+    }
+    return d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
+  };
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} preserveAspectRatio="none">
@@ -92,12 +104,14 @@ function LineChart({ data }: { data: TrendPoint[] }) {
       {/* Dots + labels */}
       {data.map((d, i) => (
         <g key={i}>
-          <circle cx={toX(i)} cy={toY(d.total)} r="4" fill="var(--pink)" stroke="var(--surface)" strokeWidth="2" />
+          <circle cx={toX(i)} cy={toY(d.total)} r="4" fill="var(--pink)" stroke="var(--surface)" strokeWidth="2">
+            <title>{`${formatLabel(d.fecha)} — Ventas: ${fmt(d.total)} (${d.transacciones} ticket${d.transacciones !== 1 ? 's' : ''})`}</title>
+          </circle>
           <text
             x={toX(i)} y={PAD.t + innerH + 18}
             textAnchor="middle" fontSize="10" fill="var(--text-muted)"
           >
-            {new Date(d.fecha + 'T12:00:00').toLocaleDateString('es-MX', { month: 'short', day: 'numeric' })}
+            {formatLabel(d.fecha)}
           </text>
         </g>
       ))}
@@ -106,7 +120,7 @@ function LineChart({ data }: { data: TrendPoint[] }) {
 }
 
 // ─── Mini Horizontal Bar Chart ───────────────────────────────────────────────
-function BarChart({ data }: { data: BreakItem[] }) {
+function BarChart({ data, onItemClick }: { data: BreakItem[]; onItemClick?: (item: BreakItem) => void }) {
   if (data.length === 0) return <div className={styles.chartEmpty}>Sin datos para el período</div>;
   const max = Math.max(...data.map(d => d.total), 1);
   const COLORS = ['var(--pink)', 'var(--cyan)', 'var(--yellow)', 'var(--pink-deep)', 'var(--cyan-deep)',
@@ -114,7 +128,11 @@ function BarChart({ data }: { data: BreakItem[] }) {
   return (
     <div className={styles.barList}>
       {data.map((item, i) => (
-        <div key={i} className={styles.barRow}>
+        <div
+          key={i}
+          className={`${styles.barRow} ${onItemClick ? styles.clickableRow : ''}`}
+          onClick={() => onItemClick?.(item)}
+        >
           <div className={styles.barLabel} title={item.nombre}>{item.nombre}</div>
           <div className={styles.barTrack}>
             <div
@@ -132,12 +150,12 @@ function BarChart({ data }: { data: BreakItem[] }) {
 
 // ─── Heatmap ─────────────────────────────────────────────────────────────────
 function Heatmap({ data }: { data: HeatCell[] }) {
-  // Build a lookup: [day][hour] => total
-  const map: Record<string, number> = {};
+  // Build a lookup: [day][hour] => { total, transacciones }
+  const map: Record<string, { total: number; transacciones: number }> = {};
   let maxVal = 0;
   data.forEach(c => {
     const key = `${c.diaSemana}-${c.hora}`;
-    map[key] = c.total;
+    map[key] = { total: c.total, transacciones: c.transacciones };
     if (c.total > maxVal) maxVal = c.total;
   });
 
@@ -157,13 +175,15 @@ function Heatmap({ data }: { data: HeatCell[] }) {
           <>
             <div key={`day-${d}`} className={styles.heatDay}>{day}</div>
             {HOURS.map(h => {
-              const val = map[`${d}-${h}`] || 0;
+              const cell = map[`${d}-${h}`] || { total: 0, transacciones: 0 };
+              const val = cell.total;
+              const txs = cell.transacciones;
               const intensity = maxVal > 0 ? val / maxVal : 0;
               return (
                 <div
                   key={`${d}-${h}`}
                   className={styles.heatCell}
-                  title={`${day} ${h}:00 — ${fmt(val)}`}
+                  title={`${day} ${h}:00 — ${fmt(val)} (${txs} ticket${txs !== 1 ? 's' : ''})`}
                   style={{
                     background: intensity === 0
                       ? 'var(--surface-2)'
@@ -212,6 +232,7 @@ function datesForPeriod(p: Period): [string, string] {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const [groupBy,  setGroupBy]  = useState<GroupBy>('categoria');
+  const [trendGroup, setTrendGroup] = useState<'dia' | 'semana' | 'mes'>('dia');
   // Always work with concrete dates; init to today
   const [dateFrom, setDateFrom] = useState(() => datesForPeriod('today')[0]);
   const [dateTo,   setDateTo]   = useState(() => datesForPeriod('today')[1]);
@@ -219,12 +240,67 @@ export default function DashboardPage() {
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
 
-  const fetchData = useCallback(async (g: GroupBy, from: string, to: string) => {
+  // Persist trendGroup grouping
+  useEffect(() => {
+    const saved = localStorage.getItem('tapioki_dashboard_trend_group');
+    if (saved === 'dia' || saved === 'semana' || saved === 'mes') {
+      setTrendGroup(saved);
+    }
+  }, []);
+
+  const handleTrendGroup = (tg: 'dia' | 'semana' | 'mes') => {
+    setTrendGroup(tg);
+    localStorage.setItem('tapioki_dashboard_trend_group', tg);
+  };
+
+  // ─── Modal States ──────────────────────────────────────────────────────────
+  const [selectedCat, setSelectedCat] = useState<{ id: number | null | undefined; nombre: string } | null>(null);
+  const [modalProducts, setModalProducts] = useState<any[]>([]);
+  const [modalLoading, setModalLoading]   = useState(false);
+  const [modalTab, setModalTab]           = useState<'monto' | 'cantidad'>('monto');
+
+  const fetchCategoryDetails = useCallback(async (catId: any, catName: string) => {
+    setModalLoading(true);
+    try {
+      const params = new URLSearchParams({
+        id: catId !== undefined && catId !== null ? String(catId) : '',
+        name: catName,
+        dateFrom,
+        dateTo,
+      });
+      const res = await fetch(`/api/dashboard/sales/category-details?${params}`);
+      if (!res.ok) throw new Error('Error al cargar detalle');
+      const json = await res.json();
+      setModalProducts(json.products || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setModalLoading(false);
+    }
+  }, [dateFrom, dateTo]);
+
+  useEffect(() => {
+    if (selectedCat) {
+      fetchCategoryDetails(selectedCat.id, selectedCat.nombre);
+    } else {
+      setModalProducts([]);
+    }
+  }, [selectedCat, fetchCategoryDetails]);
+
+  const handleCategoryClick = (item: BreakItem) => {
+    setSelectedCat({ id: item.id, nombre: item.nombre });
+    setModalTab('monto');
+  };
+
+  const modalTotalMonto = modalProducts.reduce((acc, p) => acc + Number(p.total), 0);
+  const modalTotalCant  = modalProducts.reduce((acc, p) => acc + Number(p.cantidad), 0);
+
+  const fetchData = useCallback(async (g: GroupBy, from: string, to: string, tg: 'dia' | 'semana' | 'mes') => {
     if (!from || !to) return;
     setLoading(true);
     setError('');
     try {
-      const params = new URLSearchParams({ groupBy: g, dateFrom: from, dateTo: to });
+      const params = new URLSearchParams({ groupBy: g, dateFrom: from, dateTo: to, trendGroup: tg });
       const res = await fetch(`/api/dashboard/sales?${params}`);
       if (!res.ok) throw new Error('Error al cargar datos');
       setData(await res.json());
@@ -236,8 +312,8 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    fetchData(groupBy, dateFrom, dateTo);
-  }, [groupBy, dateFrom, dateTo, fetchData]);
+    fetchData(groupBy, dateFrom, dateTo, trendGroup);
+  }, [groupBy, dateFrom, dateTo, trendGroup, fetchData]);
 
   // Period button clicked — sets the date pickers to the preset range
   const handlePeriod = (p: Period) => {
@@ -390,13 +466,38 @@ export default function DashboardPage() {
         <div className={styles.chartHeader}>
           <div>
             <h3 className={styles.chartTitle}>Tendencia de Ventas</h3>
-            <p className={styles.chartSub}>Ventas por día en el período seleccionado</p>
+            <p className={styles.chartSub}>
+              Ventas por {trendGroup === 'dia' ? 'día' : trendGroup === 'semana' ? 'semana' : 'mes'} en el período seleccionado
+            </p>
+          </div>
+          <div className={styles.groupBtns}>
+            <button
+              className={`${styles.groupBtn} ${trendGroup === 'dia' ? styles.groupActive : ''}`}
+              onClick={() => handleTrendGroup('dia')}
+            >
+              Día
+            </button>
+            <button
+              className={`${styles.groupBtn} ${trendGroup === 'semana' ? styles.groupActive : ''}`}
+              onClick={() => handleTrendGroup('semana')}
+            >
+              Semana
+            </button>
+            <button
+              className={`${styles.groupBtn} ${trendGroup === 'mes' ? styles.groupActive : ''}`}
+              onClick={() => handleTrendGroup('mes')}
+            >
+              Mes
+            </button>
           </div>
         </div>
         <div className={styles.chartBody}>
           {loading
             ? <div className={styles.chartEmpty}>Cargando...</div>
-            : <LineChart data={(data?.trend ?? []).map((r: any) => ({ ...r, fecha: r.fecha?.split('T')[0] ?? r.fecha }))} />
+            : <LineChart
+                data={(data?.trend ?? []).map((r: any) => ({ ...r, fecha: r.fecha?.split('T')[0] ?? r.fecha }))}
+                group={trendGroup}
+              />
           }
         </div>
       </div>
@@ -428,7 +529,10 @@ export default function DashboardPage() {
         <div className={styles.chartBody}>
           {loading
             ? <div className={styles.chartEmpty}>Cargando...</div>
-            : <BarChart data={data?.breakdown ?? []} />
+            : <BarChart
+                data={data?.breakdown ?? []}
+                onItemClick={groupBy === 'categoria' ? handleCategoryClick : undefined}
+              />
           }
         </div>
       </div>
@@ -448,6 +552,92 @@ export default function DashboardPage() {
           }
         </div>
       </div>
+
+      {/* ─── Category Details Modal ─── */}
+      {selectedCat && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedCat(null)}>
+          <div className={`${styles.modalContent} glass`} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHead}>
+              <div className={styles.modalTitleGroup}>
+                <h3>{selectedCat.nombre}</h3>
+                <p>Detalle de productos en el período seleccionado</p>
+              </div>
+              <button className={styles.modalCloseBtn} onClick={() => setSelectedCat(null)}>
+                <XCircle size={20} />
+              </button>
+            </div>
+
+            {/* KPIs */}
+            <div className={styles.modalKpis}>
+              <div className={styles.modalKpiCard}>
+                <span className={styles.modalKpiLabel}>Ventas Totales</span>
+                <span className={styles.modalKpiValue}>
+                  {modalLoading ? '—' : fmt(modalTotalMonto)}
+                </span>
+              </div>
+              <div className={styles.modalKpiCard}>
+                <span className={styles.modalKpiLabel}>Unidades Vendidas</span>
+                <span className={styles.modalKpiValue}>
+                  {modalLoading ? '—' : `${modalTotalCant} uds`}
+                </span>
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div className={styles.modalTabs}>
+              <button
+                className={`${styles.modalTabBtn} ${modalTab === 'monto' ? styles.modalTabActivePink : ''}`}
+                onClick={() => setModalTab('monto')}
+              >
+                <Banknote size={15} /> Monto ($)
+              </button>
+              <button
+                className={`${styles.modalTabBtn} ${modalTab === 'cantidad' ? styles.modalTabActiveCyan : ''}`}
+                onClick={() => setModalTab('cantidad')}
+              >
+                <Package size={15} /> Cantidad (Uds)
+              </button>
+            </div>
+
+            {/* Content List */}
+            <div className={styles.modalChartBody}>
+              {modalLoading ? (
+                <div className={styles.chartEmpty}>Cargando desglose...</div>
+              ) : modalProducts.length === 0 ? (
+                <div className={styles.chartEmpty}>Sin ventas registradas en este período</div>
+              ) : (
+                (() => {
+                  const maxVal = Math.max(
+                    ...modalProducts.map(p => (modalTab === 'monto' ? Number(p.total) : Number(p.cantidad))),
+                    1
+                  );
+                  return modalProducts.map((p, i) => {
+                    const currentVal = modalTab === 'monto' ? Number(p.total) : Number(p.cantidad);
+                    const pct = (currentVal / maxVal) * 100;
+                    return (
+                      <div key={p.id || i} className={styles.modalBarRow}>
+                        <div className={styles.modalBarRank}>#{i + 1}</div>
+                        <div className={styles.modalBarContent}>
+                          <div className={styles.modalBarLabel} title={p.nombre}>{p.nombre}</div>
+                          <div className={styles.modalBarTrack}>
+                            <div
+                              className={modalTab === 'monto' ? styles.modalBarFillPink : styles.modalBarFillCyan}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                        <div className={styles.modalBarValue}>
+                          {modalTab === 'monto' ? fmt(p.total) : `${p.cantidad} uds`}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   const groupBy  = searchParams.get('groupBy')  || 'categoria'; // categoria | producto
   const dateFrom = searchParams.get('dateFrom') || ''; // YYYY-MM-DD
   const dateTo   = searchParams.get('dateTo')   || ''; // YYYY-MM-DD
+  const trendGroup = searchParams.get('trendGroup') || 'dia'; // dia | semana | mes
 
   // Build date filter — custom range takes priority over period preset
   let dateFilter = '';
@@ -49,16 +50,27 @@ export async function GET(req: NextRequest) {
       WHERE ${dateFilter} AND v.Cancelada = 0
     `, filterParams);
 
-    // ── Sales Trend by Day ───────────────────────────────────────────────────
+    // ── Sales Trend (Day, Week, or Month) ────────────────────────────────────
+    let selectTrend = `DATE(v.FechaVenta) AS fecha`;
+    let groupTrend  = `DATE(v.FechaVenta)`;
+
+    if (trendGroup === 'semana') {
+      selectTrend = `DATE_SUB(DATE(v.FechaVenta), INTERVAL WEEKDAY(v.FechaVenta) DAY) AS fecha`;
+      groupTrend  = `DATE_SUB(DATE(v.FechaVenta), INTERVAL WEEKDAY(v.FechaVenta) DAY)`;
+    } else if (trendGroup === 'mes') {
+      selectTrend = `DATE_FORMAT(v.FechaVenta, '%Y-%m-01') AS fecha`;
+      groupTrend  = `DATE_FORMAT(v.FechaVenta, '%Y-%m-01')`;
+    }
+
     const [trendRows] = await pool.query(`
       SELECT
-        DATE(v.FechaVenta)              AS fecha,
+        ${selectTrend},
         COALESCE(SUM(v.Total), 0)       AS total,
         COUNT(v.IdVenta)                AS transacciones
       FROM tblVentas v
       WHERE ${dateFilter} AND v.Cancelada = 0
-      GROUP BY DATE(v.FechaVenta)
-      ORDER BY DATE(v.FechaVenta) ASC
+      GROUP BY ${groupTrend}
+      ORDER BY fecha ASC
     `, filterParams);
 
     // ── Breakdown by Category or Product ─────────────────────────────────────
@@ -66,6 +78,7 @@ export async function GET(req: NextRequest) {
     if (groupBy === 'categoria') {
       const [rows] = await pool.query(`
         SELECT
+          c.IdCategoria                           AS id,
           COALESCE(c.Categoria, 'Sin Categoría') AS nombre,
           COALESCE(SUM(d.Cantidad * d.Precio), 0) AS total,
           COALESCE(SUM(d.Cantidad), 0)            AS cantidad

@@ -237,6 +237,16 @@
   overflow: visible;
 }
 
+.svg circle {
+  transition: r 0.15s ease, fill 0.15s ease;
+  cursor: pointer;
+}
+
+.svg circle:hover {
+  r: 6px;
+  fill: var(--pink-deep) !important;
+}
+
 /* ─── Group Buttons (Breakdown) ──────────────────────────────────────────── */
 .groupBtns {
   display: flex;
@@ -452,4 +462,255 @@
   background: var(--danger);
   color: #fff;
 }
+
+/* ─── Clickable Category rows ─── */
+.clickableRow {
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.35rem 0.5rem;
+  margin: 0 -0.5rem;
+  border-radius: var(--r-md);
+}
+
+.clickableRow:hover {
+  background: var(--surface-2);
+  transform: translateX(4px);
+}
+
+/* ─── Premium Modal ──────────────────────────────────────────────────────── */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 12, 0.65);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  width: 90%;
+  max-width: 550px;
+  border-radius: var(--r-xl);
+  padding: 2rem;
+  position: relative;
+  animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modalHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.modalTitleGroup h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.modalTitleGroup p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.modalCloseBtn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--ease);
+}
+
+.modalCloseBtn:hover {
+  background: rgba(245, 101, 101, 0.12);
+  color: var(--danger);
+  border-color: rgba(245, 101, 101, 0.2);
+  transform: rotate(90deg);
+}
+
+/* Modal KPIs */
+.modalKpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.modalKpiCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.85rem 1rem;
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.modalKpiLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.modalKpiValue {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* Tabs */
+.modalTabs {
+  display: flex;
+  background: var(--surface);
+  padding: 0.25rem;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  gap: 0.25rem;
+}
+
+.modalTabBtn {
+  flex: 1;
+  padding: 0.45rem;
+  border-radius: var(--r-md);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.modalTabActivePink {
+  background: var(--pink);
+  color: #fff !important;
+  box-shadow: 0 4px 10px var(--pink-glow);
+}
+
+.modalTabActiveCyan {
+  background: var(--cyan);
+  color: #0c1a1b !important;
+  box-shadow: 0 4px 10px rgba(93, 224, 230, 0.25);
+}
+
+/* Modal Charts List */
+.modalChartBody {
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-right: 0.25rem;
+}
+
+/* Custom Scrollbar for Modal Charts */
+.modalChartBody::-webkit-scrollbar {
+  width: 4px;
+}
+.modalChartBody::-webkit-scrollbar-track {
+  background: transparent;
+}
+.modalChartBody::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 99px;
+}
+
+.modalBarRow {
+  display: grid;
+  grid-template-columns: 28px 1fr 85px;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modalBarRank {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+}
+
+.modalBarContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.modalBarLabel {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modalBarTrack {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 99px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.modalBarFillPink {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pink) 0%, var(--pink-deep) 100%);
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modalBarFillCyan {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan) 0%, var(--cyan-deep) 100%);
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modalBarValue {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: right;
+  color: var(--text);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 
