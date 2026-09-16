@@ -1,8 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-
-export type ModelKey = 'haiku' | 'sonnet' | 'opus';
+import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
@@ -12,8 +10,8 @@ export interface ChatMessage {
 }
 
 interface TapiChatCtx {
-  model: ModelKey;
-  changeModel: (m: ModelKey) => void;
+  /** Modelo con que contestó HL Console; null hasta la primera respuesta. */
+  modelo: string | null;
   messages: ChatMessage[];
   busy: boolean;
   send: (text: string) => Promise<void>;
@@ -25,20 +23,11 @@ const TapiChatContext = createContext<TapiChatCtx | null>(null);
 // Comparte la conversación entre el widget flotante y la página de pantalla
 // completa "/agente-inteligente", para que "maximizar" no pierda el hilo.
 export function TapiChatProvider({ children }: { children: ReactNode }) {
-  const [model, setModel] = useState<ModelKey>('opus');
+  // El modelo lo fija el agente en HL Console; aquí solo se muestra el que llegó.
+  const [modelo, setModelo] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    const m = localStorage.getItem('tapi_model');
-    if (m === 'haiku' || m === 'sonnet' || m === 'opus') setModel(m);
-  }, []);
-
-  const changeModel = (m: ModelKey) => {
-    setModel(m);
-    localStorage.setItem('tapi_model', m);
-  };
 
   const clear = () => setMessages([]);
 
@@ -79,7 +68,7 @@ export function TapiChatProvider({ children }: { children: ReactNode }) {
       const res = await fetch('/api/agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, model, history }),
+        body: JSON.stringify({ prompt, history }),
         signal: controller.signal,
       });
 
@@ -106,6 +95,7 @@ export function TapiChatProvider({ children }: { children: ReactNode }) {
           let evt: any;
           try { evt = JSON.parse(trimmed); } catch { continue; }
           if (evt.type === 'text') appendText(evt.text);
+          else if (evt.type === 'model') setModelo(evt.modelo ?? null);
           else if (evt.type === 'tool') patchLast({ querying: true });
           else if (evt.type === 'error') patchLast({ content: `⚠️ ${evt.message}`, streaming: false, querying: false });
           else if (evt.type === 'done') patchLast({ streaming: false, querying: false });
@@ -125,7 +115,7 @@ export function TapiChatProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <TapiChatContext.Provider value={{ model, changeModel, messages, busy, send, clear }}>
+    <TapiChatContext.Provider value={{ modelo, messages, busy, send, clear }}>
       {children}
     </TapiChatContext.Provider>
   );
