@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Send, X, Database, Trash2, Maximize2, Minimize2 } from 'lucide-react';
 import { useTapiChat } from './TapiChatContext';
 import styles from './TapiAssistant.module.css';
@@ -12,27 +12,61 @@ const SUGGESTIONS = [
   '¿Cuál es mi hora pico de ventas?',
 ];
 
-/* ── Carita feliz estilo logo Tapioki ── */
+/* ── Carita clásica de Tapi con volumen 3D ── */
 export function TapiFace({ size = 40 }: { size?: number }) {
+  const id = useId().replace(/:/g, '');
+
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden>
+    <svg
+      className={styles.tapiMascot}
+      width={size}
+      height={size}
+      viewBox="0 0 112 116"
+      aria-hidden="true"
+    >
       <defs>
-        <radialGradient id="tapiYellow" cx="38%" cy="32%" r="75%">
-          <stop offset="0%" stopColor="#ffe65a" />
-          <stop offset="100%" stopColor="#f9a825" />
+        <radialGradient id={`${id}-face`} cx="32%" cy="25%" r="72%">
+          <stop offset="0%" stopColor="#fffbd0" />
+          <stop offset="18%" stopColor="#ffe967" />
+          <stop offset="67%" stopColor="#fbc02d" />
+          <stop offset="100%" stopColor="#dc8715" />
         </radialGradient>
+        <radialGradient id={`${id}-cheek`} cx="36%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#ffb4c1" />
+          <stop offset="100%" stopColor="#ed6682" />
+        </radialGradient>
+        <radialGradient id={`${id}-eye`} cx="32%" cy="24%" r="75%">
+          <stop offset="0%" stopColor="#56515a" />
+          <stop offset="50%" stopColor="#242229" />
+          <stop offset="100%" stopColor="#09090b" />
+        </radialGradient>
+        <linearGradient id={`${id}-rim`} x1="20%" y1="10%" x2="85%" y2="92%">
+          <stop offset="0%" stopColor="#353238" />
+          <stop offset="62%" stopColor="#242127" />
+          <stop offset="100%" stopColor="#6f4310" />
+        </linearGradient>
+        <filter id={`${id}-shadow`} x="-30%" y="-30%" width="170%" height="180%">
+          <feDropShadow dx="1" dy="7" stdDeviation="5" floodColor="#7a4a11" floodOpacity=".34" />
+        </filter>
+        <clipPath id={`${id}-clip`}><circle cx="56" cy="54" r="48" /></clipPath>
       </defs>
-      <circle cx="50" cy="50" r="46" fill="url(#tapiYellow)" stroke="#1a1a1a" strokeWidth="4" />
-      {/* cachetes */}
-      <circle cx="28" cy="60" r="8" fill="#ff8da1" opacity="0.85" />
-      <circle cx="72" cy="60" r="8" fill="#ff8da1" opacity="0.85" />
-      {/* ojos */}
-      <circle cx="35" cy="42" r="5.5" fill="#1a1a1a" />
-      <circle cx="65" cy="42" r="5.5" fill="#1a1a1a" />
-      <circle cx="37" cy="40" r="1.8" fill="#fff" />
-      <circle cx="67" cy="40" r="1.8" fill="#fff" />
-      {/* sonrisa */}
-      <path d="M32 60 Q50 78 68 60" fill="none" stroke="#1a1a1a" strokeWidth="4.5" strokeLinecap="round" />
+      <ellipse cx="57" cy="108" rx="34" ry="5.5" fill="#7b4a16" opacity=".2" />
+      <g filter={`url(#${id}-shadow)`}>
+        <circle cx="56" cy="54" r="49.5" fill={`url(#${id}-rim)`} />
+        <circle cx="56" cy="53" r="47" fill={`url(#${id}-face)`} />
+        <g clipPath={`url(#${id}-clip)`}>
+          <ellipse cx="36" cy="25" rx="23" ry="12" fill="#fff" opacity=".28" transform="rotate(-24 36 25)" />
+          <ellipse cx="93" cy="65" rx="12" ry="36" fill="#a9600f" opacity=".12" transform="rotate(8 93 65)" />
+        </g>
+        <ellipse cx="32" cy="65" rx="9" ry="7" fill={`url(#${id}-cheek)`} opacity=".88" />
+        <ellipse cx="80" cy="65" rx="9" ry="7" fill={`url(#${id}-cheek)`} opacity=".88" />
+        <circle cx="40" cy="46" r="6" fill={`url(#${id}-eye)`} />
+        <circle cx="72" cy="46" r="6" fill={`url(#${id}-eye)`} />
+        <circle cx="42" cy="43.5" r="2" fill="#fff" />
+        <circle cx="74" cy="43.5" r="2" fill="#fff" />
+        <path d="M37 65c5 11 14 16 19 16s14-5 19-16" fill="none" stroke="#242127" strokeWidth="5" strokeLinecap="round" />
+        <path d="M43 69c7 7 19 8 27 0" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" opacity=".72" />
+      </g>
     </svg>
   );
 }

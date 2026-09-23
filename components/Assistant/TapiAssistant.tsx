@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Sparkles } from 'lucide-react';
 import TapiChatPanel, { TapiFace } from './TapiChatPanel';
 import styles from './TapiAssistant.module.css';
 
@@ -16,10 +15,15 @@ export default function TapiAssistant() {
 
   // Solo administradores (mismo criterio que el dashboard)
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('user');
-      if (saved && JSON.parse(saved)?.IdPuesto === 1) setAllowed(true);
-    } catch { /* ignore */ }
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      try {
+        const saved = localStorage.getItem('user');
+        if (saved && JSON.parse(saved)?.IdPuesto === 1) setAllowed(true);
+      } catch { /* ignore */ }
+    });
+    return () => { active = false; };
   }, []);
 
   // En la página de pantalla completa el widget flotante no se muestra (ya está maximizado ahí)
@@ -29,15 +33,16 @@ export default function TapiAssistant() {
     <>
       {/* Botón flotante carita feliz */}
       {!open && (
-        <button
-          className={styles.fab}
-          onClick={() => setOpen(true)}
-          title="Pregúntale a Tapi"
-          aria-label="Abrir asistente Tapi"
-        >
-          <TapiFace size={46} />
-          <span className={styles.fabSpark}><Sparkles size={14} /></span>
-        </button>
+        <div className={styles.fabDock}>
+          <button
+            className={styles.fab}
+            onClick={() => setOpen(true)}
+            title="Pregúntale a Tapi"
+            aria-label="Abrir asistente Tapi"
+          >
+            <TapiFace size={82} />
+          </button>
+        </div>
       )}
 
       {/* Panel del chat */}
